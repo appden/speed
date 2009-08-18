@@ -40,19 +40,19 @@
 	var head = document.getElementsByTagName('head')[0];
 	
 	var load = function(src, callback){
-	    var script = document.createElement('script');
-	    script.type = 'text/javascript';
+		var script = document.createElement('script');
+		script.type = 'text/javascript';
 
-	    if (script.readyState) script.onreadystatechange = function(){
-	        if (script.readyState == 'loaded' || script.readyState == 'complete'){
-                script.onreadystatechange = null;
-                if (callback) callback();
-            }
-        };
-	    else script.onload = callback;
+		if (script.readyState) script.onreadystatechange = function(){
+			if (script.readyState == 'loaded' || script.readyState == 'complete'){
+				script.onreadystatechange = null;
+				if (callback) callback();
+			}
+		};
+		else script.onload = callback;
 
-	    script.src = src;
-	    head.appendChild(script);
+		script.src = src;
+		head.appendChild(script);
 	};
 	
 	if (!console || !console.time)
@@ -73,7 +73,7 @@
 		
 		for (var type in test){
 			var fn = test[type];
-			if (typeof fn != 'function') continue;
+			if (typeof fn != 'function' || type.charAt(0) == '_') continue;
 			
 			exec(before);
 			console.time(type);
@@ -82,7 +82,7 @@
 			
 			console.timeEnd(type);
 			exec(after);
-		} 
+		}
 		
 		exec(teardown);
 		console.groupEnd(name);
