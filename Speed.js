@@ -55,7 +55,7 @@
 	
 	var head = document.getElementsByTagName('head')[0];
 	var activity = document.getElementById('activity');
-	var div = document.getElementById('playground');
+	var playground = document.getElementById('playground');
 	var console = this.console;
 	
 	if (!console || !console.time || !console.group || this.consoleCJSObject)
@@ -78,11 +78,9 @@
 		var setup = test.setup, teardown = test.teardown, before = test.before, after = test.after;
 		delete test.iterations; delete test.setup; delete test.teardown; delete test.before; delete test.after;
 		
-		var div = div;	// reduce lookup time
-		// div.innerHTML = '';
-		
+		var box = playground;	// reduce lookup time
 		var exec = function(fn){
-			if (fn) fn.call(test, div);
+			if (fn) fn.call(test, box);
 		};
 		
 		exec(setup);
@@ -94,13 +92,14 @@
 			exec(before);
 			console.time(type);
 			
-			for (var i = iterations; i--; ) fn.call(test, div);
+			for (var i = iterations; i--; ) fn.call(test, box);
 			
 			console.timeEnd(type);
 			exec(after);
 		}
 		
 		exec(teardown);
+		box.innerHTML = '';
 		console.groupEnd(name);
 	};
 	

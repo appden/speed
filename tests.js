@@ -37,10 +37,8 @@ Speed({
 		
 		iterations: 1000,
 		
-		setup: function(){
-			this.div = new Element('div', {
-				html: Array(100).join('<div></div>') + '<input name="test" /><div id="TEST"></div><div id="test"></div>'
-			}).inject(document.body);
+		setup: function(box){
+			box.innerHTML = Array(100).join('<div></div>') + '<input name="test" /><div id="TEST"></div><div id="test"></div>';
 			
 			document._getFromId = document._getFromAll = document.getElementById;
 			if (!window.ActiveXObject) return;
@@ -53,7 +51,7 @@ Speed({
 
 				var all = document.all[id];
 				for (var i = 1, l = all.length; i < l; i++){
-					var el = all[i];
+					el = all[i];
 					if (el.attributes.id.value == id) return el;
 				}
 				return null;
@@ -74,7 +72,6 @@ Speed({
 		
 		teardown: function(){
 			document._getFromId = document._getFromAll = null;
-			this.div.dispose();
 		},
 		
 		before: function(){
