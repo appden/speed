@@ -1,7 +1,7 @@
 
 Speed({
 	
-	require: 'http://ajax.googleapis.com/ajax/libs/mootools/1.2.3/mootools-yui-compressed.js',
+	require: 'http://ajax.googleapis.com/ajax/libs/mootools/1.2.3/mootools.js',
 	
 	'Child Selector': {
 		
@@ -24,64 +24,75 @@ Speed({
 		
 		'firstChild': function(){
 			var children = [];
-			var el = this.div.firstChild;
+			var child = this.div.firstChild;
 			do {
-				if (el.tagName.toLowerCase() == 'div')
-					children.push(el);
-			} while (el = el.nextSibling);
+				if (child.tagName.toLowerCase() == 'div')
+					children.push(child);
+			} while (child = child.nextSibling);
 		}
 		
 	},
 	
 	'getElementById in IE': {
 		
-		iterations: 10000,
+		iterations: 1000,
 		
 		setup: function(){
 			this.div = new Element('div', {
-				html: '<input name="test" /><div id="TEST"></div><div id="test"></div>'
+				html: Array(100).join('<div></div>') + '<input name="test" /><div id="TEST"></div><div id="test"></div>'
 			}).inject(document.body);
 			
-			var get = document._getFromAll = document.getElementById;
-			if (!this.activeXObject) return;
+			document._getFromId = document._getFromAll = document.getElementById;
+			if (!window.ActiveXObject) return;
 			
-			document.getElementById = function(id){
-				var el = get.call(document, id);
+			document._getFromId = function(id){
+				var el = document.getElementById(id);
 				if (!el) return null;
 
 				if (el.attributes.id.value == id) return el;
 
 				var all = document.all[id];
 				for (var i = 1, l = all.length; i < l; i++){
-					el = all[i];
+					var el = all[i];
 					if (el.attributes.id.value == id) return el;
 				}
 				return null;
 			};
 			
-			document._getFromAll = function(){
+			document._getFromAll = function(id){
 				var all = document.all[id];
-				if (all) for (var i = 1, l = all.length; i < l; i++){
-					var el = all[i];
-					if (el.attributes.id.value == id) return el;
+				if (all){
+					if (!all.item) all = [all];
+					for (var i = 0, l = all.length; i < l; i++){
+						var el = all[i];
+						if (el.attributes.id.value == id) return el;
+					}
 				}
 				return null;
-			}
+			};
 		},
 		
 		teardown: function(){
-			document._getFromAll = null;
+			document._getFromId = document._getFromAll = null;
 			this.div.dispose();
 		},
 		
+		before: function(){
+			this.failed = false;
+		},
+		
+		after: function(){
+			if (this.failed) console.warn('FAILED');
+		},
+		
 		'native method first': function(){
-			document.getElementById('test');
-			document.getElementById('TEST');
+			if (document._getFromId('test').id != 'test') this.failed = true;
+			//if (document._getFromId('TEST').id != 'TEST') this.failed = true;
 		},
 		
 		'only document.all': function(){
-			document._getFromAll('test');
-			document._getFromAll('TEST');
+			if (document._getFromAll('test').id != 'test') this.failed = true;
+			//if (document._getFromAll('TEST').id != 'TEST') this.failed = true;
 		}
 		
 	}

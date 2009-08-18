@@ -37,8 +37,6 @@
 		else callbacks.push(callback);
 	};
 	
-	var head = document.getElementsByTagName('head')[0];
-	
 	var load = function(src, callback){
 		var script = document.createElement('script');
 		script.type = 'text/javascript';
@@ -55,8 +53,23 @@
 		head.appendChild(script);
 	};
 	
-	if (!console || !console.time)
-		require('http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js');
+	var head = document.getElementsByTagName('head')[0];
+	var activity = document.getElementById('activity');
+	var div = document.getElementById('playground');
+	var console = this.console;
+	
+	if (!console || !console.time || !console.group || this.consoleCJSObject)
+		require('http://getfirebug.com/releases/lite/1.2/firebug-lite.js', function(){
+			firebug.init();
+			console = firebug.d.console.cmd;
+			console.group = console.info;
+			console.groupEnd = function(){};
+		});
+		
+	var active = function(on){
+		activity.style.display = on ? 'block' : 'none';
+	};
+	active(false);
 	
 	var run = function(name, test, iterations){
 		console.group(name);
@@ -65,8 +78,11 @@
 		var setup = test.setup, teardown = test.teardown, before = test.before, after = test.after;
 		delete test.iterations; delete test.setup; delete test.teardown; delete test.before; delete test.after;
 		
+		var div = div;	// reduce lookup time
+		// div.innerHTML = '';
+		
 		var exec = function(fn){
-			if (fn) fn.call(test);
+			if (fn) fn.call(test, div);
 		};
 		
 		exec(setup);
@@ -78,7 +94,7 @@
 			exec(before);
 			console.time(type);
 			
-			for (var i = iterations; i--; ) fn.call(test);
+			for (var i = iterations; i--; ) fn.call(test, div);
 			
 			console.timeEnd(type);
 			exec(after);
@@ -89,6 +105,7 @@
 	};
 	
 	this.Speed = function(tests){
+		active(true);
 		require(tests.require);
 		push(tests.setup);
 		var iterations = tests.iterations || 100;
@@ -97,6 +114,7 @@
 		
 		push(function(){
 			for (var name in tests) run(name, tests[name], iterations);
+			active(false);
 		});
 	};
 	

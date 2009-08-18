@@ -2,11 +2,22 @@
 <html>
 	<head>
 		<title>Speed</title>
-		<script src="Speed.js" type="text/javascript"></script>
-		<script src="tests.js" type="text/javascript"></script>
+		
+		<style type="text/css">
+			#activity {
+				color: red;
+			}
+		</style>
 	</head>
 	<body>
 		<h1>Speed</h1>
 		<p>A crude JavaScript speed testing framework. Open your console to see the results.</p>
+		
+		<h2 id="activity">Running tests...</h2>
+		
+		<div id="playground"></div>
+		
+		<script src="Speed.js" type="text/javascript"></script>
+		<script src="tests.js" type="text/javascript"></script>
 	</body>
 </html>
